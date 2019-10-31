@@ -6,7 +6,7 @@
             margin: 0;
             padding: 0;
         }
-        #canvas {
+        canvas {
             position: fixed;
         }
         #toggleEdgeScrollingEnabled {
@@ -33,36 +33,43 @@
             moveCamera = false,
             edgeScrollingEnabled = false,
             posLabelsEnabled = false,
-            tile,
-            block,
-            ramp1,
-            canvas;
+            groundLayerCanvas,
+            objectLayerCanvas,
+            uiLayerCanvas;
 
-        window.addEventListener("load", function() {
-            canvas = document.getElementById("canvas");
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, isAnimated) {
+            this.source = src;
+            this.tileWidth = tw;
+            this.tileHeight = th;
+            this.sourceX = srcX;
+            this.sourceY = srcY;
+            this.sourceWidth = srcWidth;
+            this.sourceHeight = srcHeight;
+            this.isAnimated = isAnimated || false;
+            this.current = this;
+        };
 
-            tile = new Image();
+        var tile = new Image();
             tile.src = "tile@4x.png";
-            tile.addEventListener("load", function() {
-                requestAnimationFrame(draw);
-            });
 
-            block = new Image();
+        var tiles = new Image();
+            tiles.src = "tiles.png";
+
+        var block = new Image();
             block.src = "block@4x.png";
-            block.addEventListener("load", function() {
+            block.addEventListener("load", function () {
                 block.tileWidth = 504;
                 block.tileHeight = 252;
                 block.defWidth = 504;
                 block.defHeight = 504;
                 block.multiplierX = tileWidth / block.tileWidth;
                 block.multiplierY = tileHeight / block.tileHeight;
-
-                requestAnimationFrame(draw);
             });
 
-            ramp1 = new Image();
+        var blocks = new Image();
+            blocks.src = "blocks.png";
+
+        var ramp1 = new Image();
             ramp1.src = "ramp1@4x.png";
             ramp1.addEventListener("load", function () {
                 ramp1.tileWidth = 504;
@@ -71,14 +78,84 @@
                 ramp1.defHeight = 504;
                 ramp1.multiplierX = tileWidth / ramp1.tileWidth;
                 ramp1.multiplierY = tileHeight / ramp1.tileHeight;
-
-                requestAnimationFrame(draw);
             });
 
+        var tileDefinitions = {
+            default: new TileDefinition(tiles, 0, 0, 504, 262, 504, 252), 
+            ground: new TileDefinition(tiles, 504, 0, 504, 262, 504, 252),
+            water: new TileDefinition(tiles, 1008, 0, 504, 257, 504, 252, true),
+            lava: new TileDefinition(tiles, 1512, 0, 504, 252, 504, 252),
+            block: new TileDefinition(blocks, 0, 0, 504, 504, 504, 252),
+            rampNorth: new TileDefinition(blocks, 504, 0, 504, 504, 504, 252),
+            rampEast: new TileDefinition(blocks, 504, 504, 504, 504, 504, 252),
+            rampSouth: new TileDefinition(blocks, 504, 1008, 504, 504, 504, 252),
+            rampWest: new TileDefinition(blocks, 504, 1512, 504, 504, 504, 252),
+        };
+
+        var groundLayer = [
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
+            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, null, null, null, tileDefinitions.ground, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+        ];
+
+        var objectLayer = [
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest,  null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+        ];
+
+        window.addEventListener("load", function() {
+            groundLayerCanvas = document.getElementById("groundLayerCanvas");
+            groundLayerCanvas.width = window.innerWidth;
+            groundLayerCanvas.height = window.innerHeight;
+
+            objectLayerCanvas = document.getElementById("objectLayerCanvas");
+            objectLayerCanvas.width = window.innerWidth;
+            objectLayerCanvas.height = window.innerHeight;
+
+            uiLayerCanvas = document.getElementById("uiLayerCanvas");
+            uiLayerCanvas.width = window.innerWidth;
+            uiLayerCanvas.height = window.innerHeight;
+
+            var cameraPos = translateXY(groundLayer[0].length / 2, groundLayer.length / 2);
+            cameraX -= cameraPos.x;
+            cameraY -= cameraPos.y;
+
             window.addEventListener("resize", function() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                requestAnimationFrame(draw);
+                groundLayerCanvas.width = window.innerWidth;
+                groundLayerCanvas.height = window.innerHeight;
+                objectLayerCanvas.width = window.innerWidth;
+                objectLayerCanvas.height = window.innerHeight;
+                uiLayerCanvas.width = window.innerWidth;
+                uiLayerCanvas.height = window.innerHeight;
             });
 
             document.getElementById("toggleEdgeScrollingEnabled").addEventListener("click", function() {
@@ -86,16 +163,13 @@
                 if (edgeDetected) {
                     moveCameraByEdge();
                 }
-
-                requestAnimationFrame(draw);
             }); 
 
             document.getElementById("togglePosLabelsEnabled").addEventListener("click", function() {
                 posLabelsEnabled = !posLabelsEnabled;
-                requestAnimationFrame(draw);
             });
 
-            canvas.addEventListener("mousewheel", function(e) {
+            window.addEventListener("mousewheel", function(e) {
                 if (e.deltaY < 0) {
                     if (zoomFactor >= 4) {
                         zoomFactor = 4;
@@ -123,10 +197,9 @@
                 block.multiplierY = tileHeight / block.tileHeight;
                 ramp1.multiplierX = tileWidth / ramp1.tileWidth;
                 ramp1.multiplierY = tileHeight / ramp1.tileHeight;
-                requestAnimationFrame(draw);
             });
 
-            canvas.addEventListener("mousedown", function(e) {
+            window.addEventListener("mousedown", function(e) {
                 if (e.which === 3) {
                     moveCamera = true;
                     moveCameraStartX = e.clientX - cameraX;
@@ -141,17 +214,15 @@
             var edgeSpeed = 5;
             var edgeDirectionX = 0;
             var edgeDirectionY = 0;
-            canvas.addEventListener("mousemove", function(e) {
+            window.addEventListener("mousemove", function(e) {
                 if (moveCamera) {
                     cameraX = e.clientX - moveCameraStartX;
                     cameraY = e.clientY - moveCameraStartY;
-                    
-                    requestAnimationFrame(draw);
                 } else {
                     var leftEdge = e.clientX < 10;
-                    var rightEdge = e.clientX > canvas.width - 10;
+                    var rightEdge = e.clientX > groundLayerCanvas.width - 10;
                     var topEdge = e.clientY < 10;
-                    var bottomEdge = e.clientY > canvas.height - 10;
+                    var bottomEdge = e.clientY > groundLayerCanvas.height - 10;
 
                     if (leftEdge || rightEdge || topEdge || bottomEdge) {
                         edgeDirectionX = leftEdge ? edgeSpeed : (rightEdge ? -edgeSpeed : 0);
@@ -167,7 +238,6 @@
                 }
             });
 
-
             function moveCameraByEdge() {
                 if (!edgeDetected || !edgeScrollingEnabled) {
                     return;
@@ -176,12 +246,11 @@
                 cameraX += edgeDirectionX * zoomFactor;
                 cameraY += edgeDirectionY * zoomFactor;
                 setTimeout(function() {
-                    requestAnimationFrame(draw);
                     moveCameraByEdge(); },
                     20);
             }
 
-            canvas.addEventListener("mouseup", function(e) {
+            window.addEventListener("mouseup", function(e) {
                 if (e.which === 3) {
                     moveCamera = false;
                     moveCameraStartX = -1;
@@ -191,68 +260,102 @@
                 }
             });
 
-            canvas.addEventListener("contextmenu", function(e) {
+            window.addEventListener("contextmenu", function(e) {
                 e.preventDefault();
                 return false;
-            })
+            });
+
+            var ticks = 0;
+            var waterAnimationIndex = 0;
+            setInterval(function() {
+                ticks++;
+                if (ticks  >= 100) {
+                    ticks = 0;
+                    waterAnimationIndex++;
+                    if (waterAnimationIndex >= 4) {
+                        waterAnimationIndex = 0;
+                    }
+                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 257, 504, 257, 504, 252);
+                }
+
+                requestAnimationFrame(draw);
+            }, 10);
         });
 
+        function translateXY(x, y) {
+            return {
+                x: (((tileWidth - 1) / 2) * x) + (((tileWidth - 1) / 2) * y) + 0.5,
+                y: -(((tileHeight - 1) / 2) * x) + (((tileHeight - 1) / 2) * y) + 0.5
+            };
+        }
+
+        function translateOffsetXY(x, y) {
+            var offsetX = cameraX + groundLayerCanvas.width / 2,
+                offsetY = cameraY + groundLayerCanvas.height / 2,
+                tx = offsetX + (((tileWidth - 1) / 2) * x) + (((tileWidth - 1) / 2) * y) + 0.5,
+                ty = offsetY - (((tileHeight - 1) / 2) * x) + (((tileHeight - 1) / 2) * y) + 0.5;
+
+            return { x: tx, y: ty };
+        }
+
         function draw() {
-            var context = canvas.getContext("2d");
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            var groundLayerContext = groundLayerCanvas.getContext("2d");
+            groundLayerContext.clearRect(0, 0, groundLayerCanvas.width, groundLayerCanvas.height);
 
-            var offsetX = cameraX + canvas.width / 2,
-                offsetY = cameraY + canvas.height / 2;
+            var objectLayerContext = objectLayerCanvas.getContext("2d");
+            objectLayerContext.clearRect(0, 0, objectLayerCanvas.width, objectLayerCanvas.height);
 
-            var width = 15;
-            var height = 10;
-            for (var y = -height; y < height; y++) {
-                for (var x = width; x > -width; x--) {
-                    var tx = offsetX + (((tileWidth - 1) / 2) * x) + (((tileWidth - 1) / 2) * y) + 0.5;
-                    var ty = offsetY - (((tileHeight - 1) / 2) * x) + (((tileHeight - 1) / 2) * y) + 0.5;
-                    if (tx < -tileWidth
-                        || ty < -tileHeight
-                        || tx > canvas.width + tileWidth
-                        || ty > canvas.height + (tileHeight * 2)) {
+            var uiLayerContext = uiLayerCanvas.getContext("2d");
+            uiLayerContext.clearRect(0, 0, uiLayerCanvas.width, uiLayerCanvas.height);
+
+            var width = groundLayer[0].length;
+            var height = groundLayer.length;
+
+            for (var y = 0; y < height; y++) {
+                for (var x = width - 1; x >= 0; x--) {
+                    var absPosition = translateOffsetXY(x, y);
+                    if (absPosition.x < -tileWidth
+                        || absPosition.y < -tileHeight
+                        || absPosition.x > groundLayerCanvas.width + tileWidth
+                        || absPosition.y > groundLayerCanvas.height + (tileHeight * 2)) {
                         continue;
                     }
 
-                    context.drawImage(
-                        tile,
-                        0,
-                        0,
-                        tile.width,
-                        tile.height,
-                        tx - (tileWidth / 2),
-                        ty - (tileHeight / 2),
-                        tileWidth,
-                        tileHeight
-                    );
+                    var tile = tileDefinitions.default;
+                    if (groundLayer[y] && groundLayer[y][x]) {
+                        tile = groundLayer[y][x];
+                    }
+                    var multiplierX = tileWidth / tile.tileWidth;
+                    var multiplierY = tileHeight / tile.tileHeight;
+                    if (tile.isAnimated) {
+                        tile = tile.current;
+                    }
 
-                    if ((y == 0 && (x == 0 || x == 1)) || (y == 1 && (x == 2))) {
-                        context.drawImage(
-                            block,
-                            0,
-                            0,
-                            block.defWidth,
-                            block.defHeight,
-                            tx - (tileWidth / 2),
-                            ty - (tileHeight / 2) - ((block.defHeight * block.multiplierY) - tileHeight),
-                            block.defWidth * block.multiplierX,
-                            block.defHeight * block.multiplierY
-                        );
-                    } else if ((y == 0 && (x == -1 || x == 2)) || (y == 1 && (x == 0 || x == 1))) {
-                        context.drawImage(
-                            ramp1,
-                            0,
-                            0,
-                            ramp1.defWidth,
-                            ramp1.defHeight,
-                            tx - (tileWidth / 2),
-                            ty - (tileHeight / 2) - ((ramp1.defHeight * ramp1.multiplierY) - tileHeight),
-                            ramp1.defWidth * ramp1.multiplierX,
-                            ramp1.defHeight * ramp1.multiplierY
-                        );
+                    groundLayerContext.drawImage(
+                        tiles,
+                        tile.sourceX,
+                        tile.sourceY,
+                        tile.sourceWidth,
+                        tile.sourceHeight,
+                        absPosition.x - (tileWidth / 2),
+                        absPosition.y - (tileHeight / 2),
+                        tile.sourceWidth * multiplierX,
+                        tile.sourceHeight * multiplierY);
+
+                    if (objectLayer[y] && objectLayer[y][x]) {
+                        var object = objectLayer[y][x];
+                        var multiplierX = tileWidth / object.tileWidth;
+                        var multiplierY = tileHeight / object.tileHeight;
+                        objectLayerContext.drawImage(
+                            blocks,
+                            object.sourceX,
+                            object.sourceY,
+                            object.sourceWidth,
+                            object.sourceHeight,
+                            absPosition.x - (tileWidth / 2),
+                            absPosition.y - (tileHeight / 2) - ((object.sourceHeight * multiplierY) - tileHeight),
+                            object.sourceWidth * multiplierX,
+                            object.sourceHeight * multiplierY);
                     }
 
                     if (posLabelsEnabled) {
@@ -263,26 +366,28 @@
                         } else if (x === 0) {
                             color = "green";
                         }
-                        context.fillStyle = color;
-                        context.textBaseline = "middle";
-                        var size = context.measureText(debugText);
-                        context.fillText(debugText, tx - (size.width / 2), ty);
+                        uiLayerContext.fillStyle = color;
+                        uiLayerContext.textBaseline = "middle";
+                        var size = uiLayerContext.measureText(debugText);
+                        uiLayerContext.fillText(debugText, absPosition.x - (size.width / 2), absPosition.y);
                     }
                 }
 
                 if (edgeScrollingEnabled) {
-                    context.beginPath();
-                    context.strokeStyle = "red";
-                    context.lineWidth = 10;
-                    context.rect(0, 0, canvas.width, canvas.height);
-                    context.stroke();
+                    uiLayerContext.beginPath();
+                    uiLayerContext.strokeStyle = "red";
+                    uiLayerContext.lineWidth = 10;
+                    uiLayerContext.rect(0, 0, groundLayerCanvas.width, groundLayerCanvas.height);
+                    uiLayerContext.stroke();
                 }
             }
         }
     </script>
 </head>
 <body>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="groundLayerCanvas" width="800" height="600"></canvas>
+    <canvas id="objectLayerCanvas" width="800" height="600"></canvas>
+    <canvas id="uiLayerCanvas" width="800" height="600"></canvas>
     <button id="toggleEdgeScrollingEnabled">Toggle edge scrolling</button>
     <button id="togglePosLabelsEnabled">Toggle position labels</button>
 </body>
