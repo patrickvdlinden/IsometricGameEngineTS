@@ -37,7 +37,7 @@
             objectLayerCanvas,
             uiLayerCanvas;
 
-        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, isAnimated) {
+        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, zIndex, isAnimated) {
             this.source = src;
             this.tileWidth = tw;
             this.tileHeight = th;
@@ -45,6 +45,7 @@
             this.sourceY = srcY;
             this.sourceWidth = srcWidth;
             this.sourceHeight = srcHeight;
+			this.zIndex = zIndex || 0;
             this.isAnimated = isAnimated || false;
             this.current = this;
         };
@@ -83,7 +84,7 @@
         var tileDefinitions = {
             default: new TileDefinition(tiles, 0, 0, 504, 262, 504, 252), 
             ground: new TileDefinition(tiles, 504, 0, 504, 262, 504, 252),
-            water: new TileDefinition(tiles, 1008, 0, 504, 257, 504, 252, true),
+            water: new TileDefinition(tiles, 1008, 0, 504, 257, 504, 252, -0.25, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 252, 504, 252),
             block: new TileDefinition(blocks, 0, 0, 504, 504, 504, 252),
             rampNorth: new TileDefinition(blocks, 504, 0, 504, 504, 504, 252),
@@ -169,7 +170,7 @@
                 posLabelsEnabled = !posLabelsEnabled;
             });
 
-            window.addEventListener("mousewheel", function(e) {
+            window.addEventListener("wheel", function(e) {
                 if (e.deltaY < 0) {
                     if (zoomFactor >= 4) {
                         zoomFactor = 4;
@@ -275,7 +276,7 @@
                     if (waterAnimationIndex >= 4) {
                         waterAnimationIndex = 0;
                     }
-                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 257, 504, 257, 504, 252);
+                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 257, 504, 257, 504, 252, -0.25);
                 }
 
                 requestAnimationFrame(draw);
@@ -330,6 +331,11 @@
                     if (tile.isAnimated) {
                         tile = tile.current;
                     }
+					
+					var zOffsetY = 0;
+					if (tile.zIndex !== 0) {
+						zOffsetY = tile.zIndex * (tileHeight / 8);
+					}
 
                     groundLayerContext.drawImage(
                         tiles,
@@ -338,7 +344,7 @@
                         tile.sourceWidth,
                         tile.sourceHeight,
                         absPosition.x - (tileWidth / 2),
-                        absPosition.y - (tileHeight / 2),
+                        absPosition.y - (tileHeight / 2) - zOffsetY,
                         tile.sourceWidth * multiplierX,
                         tile.sourceHeight * multiplierY);
 
