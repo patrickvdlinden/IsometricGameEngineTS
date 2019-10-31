@@ -23,7 +23,7 @@
     <script>
         var baseTileWidth = 126,
             baseTileHeight = 63,
-            zoomFactor = 2,
+            zoomFactor = 1,
             tileWidth = baseTileWidth * zoomFactor,
             tileHeight = baseTileHeight * zoomFactor,
             cameraX = 0,
@@ -37,7 +37,7 @@
             objectLayerCanvas,
             uiLayerCanvas;
 
-        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, zIndex, isAnimated) {
+        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, yOffsetDir, isAnimated) {
             this.source = src;
             this.tileWidth = tw;
             this.tileHeight = th;
@@ -45,7 +45,7 @@
             this.sourceY = srcY;
             this.sourceWidth = srcWidth;
             this.sourceHeight = srcHeight;
-			this.zIndex = zIndex || 0;
+			this.yOffsetDirection = yOffsetDir || 0;
             this.isAnimated = isAnimated || false;
             this.current = this;
         };
@@ -84,53 +84,37 @@
         var tileDefinitions = {
             default: new TileDefinition(tiles, 0, 0, 504, 262, 504, 252), 
             ground: new TileDefinition(tiles, 504, 0, 504, 262, 504, 252),
-            water: new TileDefinition(tiles, 1008, 0, 504, 257, 504, 252, -0.25, true),
+            water: new TileDefinition(tiles, 1008, 0, 504, 262, 504, 252, 0, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 252, 504, 252),
             block: new TileDefinition(blocks, 0, 0, 504, 504, 504, 252),
-            rampNorth: new TileDefinition(blocks, 504, 0, 504, 504, 504, 252),
-            rampEast: new TileDefinition(blocks, 504, 504, 504, 504, 504, 252),
-            rampSouth: new TileDefinition(blocks, 504, 1008, 504, 504, 504, 252),
-            rampWest: new TileDefinition(blocks, 504, 1512, 504, 504, 504, 252),
+            rampEast: new TileDefinition(blocks, 504, 0, 504, 504, 504, 252),
+            rampSouth: new TileDefinition(blocks, 504, 504, 504, 504, 504, 252),
+            rampWest: new TileDefinition(blocks, 504, 1008, 504, 504, 504, 252),
+            rampNorth: new TileDefinition(blocks, 504, 1512, 504, 504, 504, 252),
         };
 
         var groundLayer = [
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
-            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
-            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
-            [null, null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
-            [null, null, null, null, tileDefinitions.ground, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
-            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
+            [null, null, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
+            [null, null, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
         ];
 
         var objectLayer = [
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest, null, null, null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampWest,  null, tileDefinitions.rampEast, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
+            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampWest, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
+            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
         ];
 
         window.addEventListener("load", function() {
@@ -146,8 +130,8 @@
             uiLayerCanvas.width = window.innerWidth;
             uiLayerCanvas.height = window.innerHeight;
 
-            var cameraPos = translateXY(groundLayer[0].length / 2, groundLayer.length / 2);
-            cameraX -= cameraPos.x;
+            var cameraPos = translateXY(groundLayer.length / 2, groundLayer[0].length / 3);
+            cameraX += cameraPos.x;
             cameraY -= cameraPos.y;
 
             window.addEventListener("resize", function() {
@@ -276,7 +260,7 @@
                     if (waterAnimationIndex >= 4) {
                         waterAnimationIndex = 0;
                     }
-                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 257, 504, 257, 504, 252, -0.25);
+                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 262, 504, 262, 504, 252, -1);
                 }
 
                 requestAnimationFrame(draw);
@@ -285,16 +269,17 @@
 
         function translateXY(x, y) {
             return {
-                x: (((tileWidth - 1) / 2) * x) + (((tileWidth - 1) / 2) * y) + 0.5,
-                y: -(((tileHeight - 1) / 2) * x) + (((tileHeight - 1) / 2) * y) + 0.5
+                x: -(((tileWidth - 1) / 2) * y) + (((tileWidth - 1) / 2) * x) + 0.5,
+                y: (((tileHeight - 1) / 2) * y) + (((tileHeight - 1) / 2) * x) + 0.5
             };
         }
 
         function translateOffsetXY(x, y) {
-            var offsetX = cameraX + groundLayerCanvas.width / 2,
-                offsetY = cameraY + groundLayerCanvas.height / 2,
-                tx = offsetX + (((tileWidth - 1) / 2) * x) + (((tileWidth - 1) / 2) * y) + 0.5,
-                ty = offsetY - (((tileHeight - 1) / 2) * x) + (((tileHeight - 1) / 2) * y) + 0.5;
+            var offsetX = cameraX + (window.innerWidth / 2),
+                offsetY = cameraY + (window.innerHeight / 2);
+
+            var tx = offsetX - (((tileWidth - 1) / 2) * y) + (((tileWidth - 1) / 2) * x) + 0.5,
+                ty = offsetY + (((tileHeight - 1) / 2) * y) + (((tileHeight - 1) / 2) * x) + 0.5;
 
             return { x: tx, y: ty };
         }
@@ -313,7 +298,7 @@
             var height = groundLayer.length;
 
             for (var y = 0; y < height; y++) {
-                for (var x = width - 1; x >= 0; x--) {
+                for (var x = 0; x < width; x++) {
                     var absPosition = translateOffsetXY(x, y);
                     if (absPosition.x < -tileWidth
                         || absPosition.y < -tileHeight
@@ -331,12 +316,12 @@
                     if (tile.isAnimated) {
                         tile = tile.current;
                     }
-					
-					var zOffsetY = 0;
-					if (tile.zIndex !== 0) {
-						zOffsetY = tile.zIndex * (tileHeight / 8);
-					}
-
+                    
+                    var yOffset = 0;
+                    if (tile.yOffsetDirection > 0) {
+                        yOffset = ((tile.sourceHeight * multiplierY) - tileHeight);
+                    }
+                    
                     groundLayerContext.drawImage(
                         tiles,
                         tile.sourceX,
@@ -344,7 +329,7 @@
                         tile.sourceWidth,
                         tile.sourceHeight,
                         absPosition.x - (tileWidth / 2),
-                        absPosition.y - (tileHeight / 2) - zOffsetY,
+                        absPosition.y - (tileHeight / 2) - yOffset,
                         tile.sourceWidth * multiplierX,
                         tile.sourceHeight * multiplierY);
 
@@ -365,7 +350,7 @@
                     }
 
                     if (posLabelsEnabled) {
-                        var debugText = x + "," + y;
+                        var debugText = x + "," + y +" ("+ Math.round(absPosition.x) +","+ Math.round(absPosition.y) +")";
                         var color = "white";
                         if (y === 0) {
                             color = "red";
@@ -379,13 +364,28 @@
                     }
                 }
 
+                uiLayerContext.beginPath();
+                uiLayerContext.strokeStyle = "red";
+                uiLayerContext.lineWidth = 10;
+
                 if (edgeScrollingEnabled) {
-                    uiLayerContext.beginPath();
-                    uiLayerContext.strokeStyle = "red";
-                    uiLayerContext.lineWidth = 10;
-                    uiLayerContext.rect(0, 0, groundLayerCanvas.width, groundLayerCanvas.height);
+                    uiLayerContext.rect(
+                        uiLayerContext.lineWidth / 2,
+                        uiLayerContext.lineWidth / 2,
+                        groundLayerCanvas.width - (uiLayerContext.lineWidth),
+                        groundLayerCanvas.height - (uiLayerContext.lineWidth));
                     uiLayerContext.stroke();
                 }
+
+                uiLayerContext.lineWidth = 5;
+
+                uiLayerContext.moveTo(window.innerWidth / 2, 0);
+                uiLayerContext.lineTo(window.innerWidth / 2, window.innerHeight);
+                uiLayerContext.stroke();
+
+                uiLayerContext.moveTo(0, window.innerHeight / 2);
+                uiLayerContext.lineTo(window.innerWidth , window.innerHeight / 2);
+                uiLayerContext.stroke();
             }
         }
     </script>
