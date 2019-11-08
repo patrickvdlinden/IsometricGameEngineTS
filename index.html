@@ -21,9 +21,9 @@
         }
     </style>
     <script>
-        var baseTileWidth = 252,
-            baseTileHeight = 126,
-            zoomFactor = 1,
+        var baseTileWidth = 504,
+            baseTileHeight = 253,
+            zoomFactor = 0.5, // TODO: Set zoom factor to 1.
             tileWidth = baseTileWidth * zoomFactor,
             tileHeight = baseTileHeight * zoomFactor,
             cameraX = 0,
@@ -139,20 +139,16 @@
 
             window.addEventListener("wheel", function(e) {
                 if (e.deltaY < 0) {
+                    zoomFactor *= 2;
+                    
                     if (zoomFactor >= 4) {
                         zoomFactor = 4;
-                    } else {
-                        zoomFactor++;
                     }
                 } else {
-                    zoomFactor--;
+                    zoomFactor /= 2;
 
-                    if (zoomFactor < 1) {
-                        if (zoomFactor <= 0.5) {
-                            zoomFactor = 0.5;
-                        } else {
-                            zoomFactor = 0.5;
-                        }
+                    if (zoomFactor <= 0.25) {
+                        zoomFactor = 0.25;
                     }
                 }
                 
@@ -246,19 +242,20 @@
 
         function translateXY(x, y) {
             return {
-                x: -((tileWidth / 2) * y) + ((tileWidth / 2) * x),
-                y: ((tileHeight / 2) * y) + ((tileHeight / 2) * x)
+                x: -((tileWidth / 2) * y) + ((tileWidth / 2 - 0.5) * x),
+                y: ((tileHeight / 2) * y) + ((tileHeight / 2 -0.5) * x)
             };
         }
 
         function translateOffsetXY(x, y) {
             var offsetX = absCameraX() + (window.innerWidth / 2),
-                offsetY = absCameraY() + (window.innerHeight / 2);
+                offsetY = absCameraY() + (window.innerHeight / 2),
+                translated = translateXY(x, y);
 
-            var tx = offsetX - ((tileWidth / 2) * y) + ((tileWidth / 2) * x),
-                ty = offsetY + ((tileHeight / 2) * y) + ((tileHeight / 2) * x);
-
-            return { x: tx, y: ty };
+            return { 
+                x: offsetX + translated.x,
+                y: offsetY + translated.y
+            };
         }
 
         function draw() {
