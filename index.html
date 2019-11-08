@@ -21,8 +21,8 @@
         }
     </style>
     <script>
-        var baseTileWidth = 126,
-            baseTileHeight = 63,
+        var baseTileWidth = 252,
+            baseTileHeight = 126,
             zoomFactor = 1,
             tileWidth = baseTileWidth * zoomFactor,
             tileHeight = baseTileHeight * zoomFactor,
@@ -36,6 +36,14 @@
             groundLayerCanvas,
             objectLayerCanvas,
             uiLayerCanvas;
+
+        function absCameraX() {
+            return cameraX * zoomFactor;
+        }
+
+        function absCameraY() {
+            return cameraY * zoomFactor;
+        }
 
         function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, yOffsetDir, isAnimated) {
             this.source = src;
@@ -158,20 +166,18 @@
                 if (e.deltaY < 0) {
                     if (zoomFactor >= 4) {
                         zoomFactor = 4;
-                        return;
+                    } else {
+                        zoomFactor++;
                     }
-
-                    zoomFactor++;
                 } else {
                     zoomFactor--;
 
                     if (zoomFactor < 1) {
                         if (zoomFactor <= 0.5) {
                             zoomFactor = 0.5;
-                            return;
+                        } else {
+                            zoomFactor = 0.5;
                         }
-
-                        zoomFactor = 0.5;
                     }
                 }
                 
@@ -275,8 +281,8 @@
         }
 
         function translateOffsetXY(x, y) {
-            var offsetX = cameraX + (window.innerWidth / 2),
-                offsetY = cameraY + (window.innerHeight / 2);
+            var offsetX = absCameraX() + (window.innerWidth / 2),
+                offsetY = absCameraY() + (window.innerHeight / 2);
 
             var tx = offsetX - ((tileWidth / 2) * y) + ((tileWidth / 2) * x),
                 ty = offsetY + ((tileHeight / 2) * y) + ((tileHeight / 2) * x);
