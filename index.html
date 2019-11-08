@@ -58,36 +58,11 @@
             this.current = this;
         };
 
-        var tile = new Image();
-            tile.src = "tile@4x.png";
-
         var tiles = new Image();
             tiles.src = "tiles.png";
 
-        var block = new Image();
-            block.src = "block@4x.png";
-            block.addEventListener("load", function () {
-                block.tileWidth = 504;
-                block.tileHeight = 252;
-                block.defWidth = 504;
-                block.defHeight = 504;
-                block.multiplierX = tileWidth / block.tileWidth;
-                block.multiplierY = tileHeight / block.tileHeight;
-            });
-
         var blocks = new Image();
             blocks.src = "blocks.png";
-
-        var ramp1 = new Image();
-            ramp1.src = "ramp1@4x.png";
-            ramp1.addEventListener("load", function () {
-                ramp1.tileWidth = 504;
-                ramp1.tileHeight = 252;
-                ramp1.defWidth = 504;
-                ramp1.defHeight = 504;
-                ramp1.multiplierX = tileWidth / ramp1.tileWidth;
-                ramp1.multiplierY = tileHeight / ramp1.tileHeight;
-            });
 
         var tileDefinitions = {
             default: new TileDefinition(tiles, 0, 0, 504, 263, 504, 252), 
@@ -184,10 +159,6 @@
                 // TODO: Zoom to middle of screen.
                 tileWidth = baseTileWidth * zoomFactor;
                 tileHeight = baseTileHeight * zoomFactor;
-                block.multiplierX = tileWidth / block.tileWidth;
-                block.multiplierY = tileHeight / block.tileHeight;
-                ramp1.multiplierX = tileWidth / ramp1.tileWidth;
-                ramp1.multiplierY = tileHeight / ramp1.tileHeight;
             });
 
             window.addEventListener("mousedown", function(e) {
