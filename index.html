@@ -82,10 +82,10 @@
             });
 
         var tileDefinitions = {
-            default: new TileDefinition(tiles, 0, 0, 504, 262, 504, 252), 
-            ground: new TileDefinition(tiles, 504, 0, 504, 262, 504, 252),
-            water: new TileDefinition(tiles, 1008, 0, 504, 262, 504, 252, 0, true),
-            lava: new TileDefinition(tiles, 1512, 0, 504, 252, 504, 252),
+            default: new TileDefinition(tiles, 0, 0, 504, 263, 504, 252), 
+            ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 252),
+            water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 252, 0, true),
+            lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 252),
             block: new TileDefinition(blocks, 0, 0, 504, 504, 504, 252),
             rampEast: new TileDefinition(blocks, 504, 0, 504, 504, 504, 252),
             rampSouth: new TileDefinition(blocks, 504, 504, 504, 504, 504, 252),
@@ -269,8 +269,8 @@
 
         function translateXY(x, y) {
             return {
-                x: -(((tileWidth - 1) / 2) * y) + (((tileWidth - 1) / 2) * x) + 0.5,
-                y: (((tileHeight - 1) / 2) * y) + (((tileHeight - 1) / 2) * x) + 0.5
+                x: -((tileWidth / 2) * y) + ((tileWidth / 2) * x),
+                y: ((tileHeight / 2) * y) + ((tileHeight / 2) * x)
             };
         }
 
@@ -278,8 +278,8 @@
             var offsetX = cameraX + (window.innerWidth / 2),
                 offsetY = cameraY + (window.innerHeight / 2);
 
-            var tx = offsetX - (((tileWidth - 1) / 2) * y) + (((tileWidth - 1) / 2) * x) + 0.5,
-                ty = offsetY + (((tileHeight - 1) / 2) * y) + (((tileHeight - 1) / 2) * x) + 0.5;
+            var tx = offsetX - ((tileWidth / 2) * y) + ((tileWidth / 2) * x),
+                ty = offsetY + ((tileHeight / 2) * y) + ((tileHeight / 2) * x);
 
             return { x: tx, y: ty };
         }
