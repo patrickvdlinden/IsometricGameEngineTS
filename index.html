@@ -294,6 +294,9 @@
             var groundLayerContext = groundLayerCanvas.getContext("2d");
             groundLayerContext.clearRect(0, 0, groundLayerCanvas.width, groundLayerCanvas.height);
 
+            groundLayerContext.fillStyle = "black";
+            groundLayerContext.fillRect(0, 0, groundLayerCanvas.width, groundLayerCanvas.height);
+
             var objectLayerContext = objectLayerCanvas.getContext("2d");
             objectLayerContext.clearRect(0, 0, objectLayerCanvas.width, objectLayerCanvas.height);
 
