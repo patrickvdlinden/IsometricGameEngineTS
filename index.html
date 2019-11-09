@@ -251,8 +251,8 @@
 
         function translateXY(x, y) {
             return {
-                x: -((tileWidth / 2) * y) + ((tileWidth / 2 - 0.5) * x),
-                y: ((tileHeight / 2) * y) + ((tileHeight / 2 -0.5) * x)
+                x: -(((tileWidth - zoomFactor) / 2) * y) + (((tileWidth - (zoomFactor * 2)) / 2) * x),
+                y: (((tileHeight - zoomFactor) / 2) * y) + (((tileHeight - (zoomFactor * 2)) / 2) * x)
             };
         }
 
@@ -363,8 +363,8 @@
                     uiLayerContext.stroke();
                 }
 
-                uiLayerContext.lineWidth = 5;
-
+                uiLayerContext.beginPath();
+                uiLayerContext.lineWidth = 1;
                 uiLayerContext.moveTo(window.innerWidth / 2, 0);
                 uiLayerContext.lineTo(window.innerWidth / 2, window.innerHeight);
                 uiLayerContext.stroke();
