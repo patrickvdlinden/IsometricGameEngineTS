@@ -69,11 +69,20 @@
             ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 253),
             water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, 0, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253),
-            block: new TileDefinition(blocks, 0, 0, 504, 504, 504, 253),
-            rampEast: new TileDefinition(blocks, 504, 0, 504, 504, 504, 253),
-            rampSouth: new TileDefinition(blocks, 504, 504, 504, 504, 504, 253),
-            rampWest: new TileDefinition(blocks, 504, 1008, 504, 504, 504, 253),
-            rampNorth: new TileDefinition(blocks, 504, 1512, 504, 504, 504, 253),
+            block: new TileDefinition(blocks, 0, 0, 504, 506, 504, 253),
+            rampNorth: new TileDefinition(blocks, 504, 0, 504, 506, 504, 253),
+            rampEast: new TileDefinition(blocks, 504, 506, 504, 506, 504, 253),
+            rampSouth: new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253),
+            rampWest: new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253),
+            rampCornerNorthEastInset: new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253),
+            rampCornerEastSouthInset: new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253),
+            rampCornerSouthWestInset: new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253),
+            rampCornerWestNorthInset: new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253),
+            rampCornerEastNorthOutset: new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253),
+            rampCornerSouthEastOutset: new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253),
+            rampCornerWestSouthOutset: new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253),
+            rampCornerNorthWestOutset: new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253),
+            test: new TileDefinition(blocks, 0, 1518, 504, 506, 504, 253),
         };
 
         var groundLayer = [
@@ -90,13 +99,13 @@
 
         var objectLayer = [
             [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
-            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampSouth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampWest, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampEast, null, null, null, null, null, null, null, null, null, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
+            [tileDefinitions.block, tileDefinitions.rampCornerWestNorthInset, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerEastNorthOutset, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerEastNorthOutset, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerSouthEastOutset, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerSouthEastOutset, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block, tileDefinitions.block],
+            [tileDefinitions.block, tileDefinitions.rampCornerSouthWestInset, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
             [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
         ];
 
@@ -227,7 +236,7 @@
             var waterAnimationIndex = 0;
             setInterval(function() {
                 ticks++;
-                if (ticks  >= 100) {
+                if (ticks  >= 50) {
                     ticks = 0;
                     waterAnimationIndex++;
                     if (waterAnimationIndex >= 4) {
