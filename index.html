@@ -29,11 +29,17 @@
             rotation = 0,
             cameraX = 0,
             cameraY = 0,
+            cameraTileX = -0,
+            cameraTileY = 0,
             moveCameraStartX = -1,
             moveCameraStartY = -1,
             moveCamera = false,
+            mouseX = 0,
+            mouseY = 0,
+            mouseTileX = 0,
+            mouseTileY = 0,
             edgeScrollingEnabled = false,
-            posLabelsEnabled = false,
+            posLabelsEnabled = true,
             groundLayerCanvas,
             objectLayerCanvas,
             uiLayerCanvas;
@@ -154,7 +160,7 @@
 
             window.addEventListener("keydown", function(e) {
                 if (e.keyCode === 82) {
-                    var currentCameraPosition = translateTile(cameraX, cameraY);
+                    var currentCameraPosition = translateTile(cameraX, -cameraY);
                     var currentRotation = rotation;
                     rotation++;
                     
@@ -223,6 +229,10 @@
                     cameraY = rotation === 2 || rotation === 3
                         ? -(e.clientY - moveCameraStartY)
                         : e.clientY - moveCameraStartY;
+
+                    tilePos = translateTile(-absCameraX(), -absCameraY());
+                    cameraTileX = tilePos.x;
+                    cameraTileY = tilePos.y;
                 } else {
                     var leftEdge = e.clientX < 10;
                     var rightEdge = e.clientX > groundLayerCanvas.width - 10;
@@ -241,6 +251,14 @@
                         edgeDetected = false;
                     }
                 }
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                var tilePos = translateTile(
+                    e.clientX - ((window.innerWidth / 2)) - (cameraX * zoomFactor),
+                    e.clientY - (window.innerHeight / 2) - (cameraY * zoomFactor));
+                mouseTileX = tilePos.x;
+                mouseTileY = tilePos.y;
             });
 
             function moveCameraByEdge() {
@@ -288,9 +306,7 @@
         });
 
         function translateXY(x, y) {
-            var offsetX = absCameraX() + (window.innerWidth / 2),
-                offsetY = absCameraY() + (window.innerHeight / 2),
-                absX = x,
+            var absX = x,
                 absY = y,
                 translated = { x: 0, y: 0 },
                 translatedXX = ((tileWidth - (zoomFactor * 2)) / 2) * x,
@@ -300,54 +316,37 @@
 
             switch (rotation) {
                 case 0:
-                    translated = {
+                    return {
                         x: translatedXX - translatedXY,
                         y: translatedYY + translatedYX
                     };
-                    break;
 
                 case 1:
-                    translated = {
+                    return {
                         x: -(translatedXY + translatedXX),
                         y: translatedYX - translatedYY
                     };
-                    break;
 
                 case 2:
-                    translated = {
+                    return {
                         x: -(translatedXX - translatedXY),
                         y: -(translatedYX + translatedYY)
                     };
-                    break;
 
                 case 3:
-                    translated = {
+                    return {
                         x: translatedXY + translatedXX,
                         y: translatedYY - translatedYX
                     };
-                    break;
             }
-
-            return {
-                x: offsetX + translated.x,
-                y: offsetY + translated.y
-            };
         }
 
         function translateTile(absX, absY) {
-            translatedXX = absX / ((tileWidth - (zoomFactor * 2)) / 2);
-            translatedXY = absY / ((tileWidth - zoomFactor) / 2);
-            translatedYX = absX / ((tileHeight - zoomFactor) / 2);
-            translatedYY = absY / ((tileHeight - (zoomFactor * 2)) / 2);
+            absY += (tileHeight / 2);
+            var x = Math.floor((absX / (tileWidth - (zoomFactor * 2))) + (absY / (tileHeight - zoomFactor)));
+            var y = Math.floor((-absX / (tileWidth - (zoomFactor * 2))) + (absY / (tileHeight - zoomFactor)));
 
-            console.log("x:", translatedXX + translatedXY);
-            console.log("y:", translatedYY - translatedYX);
-
-            // TODO: Calculate tile position.
-            return {
-                x: 0,
-                y: 0
-            }
+            return { x: x, y: y };
         }
 
         function draw() {
@@ -405,11 +404,21 @@
                     break;
             }
 
-            uiLayerContext.beginPath();
-            uiLayerContext.strokeStyle = "red";
-            uiLayerContext.lineWidth = 10;
+            uiLayerContext.fillStyle = "white";
+            uiLayerContext.fillText("rotation: " + rotation, 20, 100);
+            uiLayerContext.fillText("cameraX: " + cameraX, 20, 115);
+            uiLayerContext.fillText("cameraY: " + cameraY, 20, 130);
+            uiLayerContext.fillText("cameraTileX: " + cameraTileX, 20, 145);
+            uiLayerContext.fillText("cameraTileY: " + cameraTileY, 20, 160);
+            uiLayerContext.fillText("mouseX: " + mouseX, 20, 175);
+            uiLayerContext.fillText("mouseY: " + mouseY, 20, 190);
+            uiLayerContext.fillText("mouseTileX: " + mouseTileX, 20, 205);
+            uiLayerContext.fillText("mouseTileY: " + mouseTileY, 20, 220);
 
             if (edgeScrollingEnabled) {
+                uiLayerContext.beginPath();
+                uiLayerContext.strokeStyle = "red";
+                uiLayerContext.lineWidth = 10;
                 uiLayerContext.rect(
                     uiLayerContext.lineWidth / 2,
                     uiLayerContext.lineWidth / 2,
@@ -417,20 +426,12 @@
                     groundLayerCanvas.height - (uiLayerContext.lineWidth));
                 uiLayerContext.stroke();
             }
-
-            uiLayerContext.beginPath();
-            uiLayerContext.lineWidth = 1;
-            uiLayerContext.moveTo(window.innerWidth / 2, 0);
-            uiLayerContext.lineTo(window.innerWidth / 2, window.innerHeight);
-            uiLayerContext.stroke();
-
-            uiLayerContext.moveTo(0, window.innerHeight / 2);
-            uiLayerContext.lineTo(window.innerWidth, window.innerHeight / 2);
-            uiLayerContext.stroke();
         }
 
         function render(groundLayerContext, objectLayerContext, uiLayerContext, x, y) {
             var absPosition = translateXY(x, y);
+            absPosition.x += absCameraX() + (window.innerWidth / 2);
+            absPosition.y += absCameraY() + (window.innerHeight / 2);
             if (absPosition.x < -tileWidth
                 || absPosition.y < -tileHeight
                 || absPosition.x > groundLayerCanvas.width + tileWidth
@@ -448,11 +449,6 @@
                 tile = tile.current;
             }
 
-            var yOffset = 0;
-            if (tile.yOffsetDirection > 0) {
-                yOffset = ((tile.sourceHeight * multiplierY) - tileHeight);
-            }
-
             groundLayerContext.drawImage(
                 tiles,
                 tile.sourceX,
@@ -460,9 +456,10 @@
                 tile.sourceWidth,
                 tile.sourceHeight,
                 absPosition.x - (tileWidth / 2),
-                absPosition.y - (tileHeight / 2) - yOffset,
+                absPosition.y - (tileHeight / 2),
                 tile.sourceWidth * multiplierX,
                 tile.sourceHeight * multiplierY);
+            drawTileAt(uiLayerContext, absPosition, undefined, x, y);
 
             if (objectLayer[y] && objectLayer[y][x]) {
                 var object = objectLayer[y][x];
@@ -484,27 +481,51 @@
                     object.sourceHeight * multiplierY);
             }
 
-            if (posLabelsEnabled) {
-                var debugText = x + "," + y + " (" + Math.round(absPosition.x) + "," + Math.round(absPosition.y) + ")";
-                var color = "white";
-                if (y === 0) {
-                    color = "red";
-                } else if (x === 0) {
-                    color = "green";
-                }
-                uiLayerContext.fillStyle = color;
-                uiLayerContext.textBaseline = "middle";
-                var size = uiLayerContext.measureText(debugText);
-                uiLayerContext.fillText(debugText, absPosition.x - (size.width / 2), absPosition.y);
+            if (mouseTileX === x && mouseTileY === y) {
+                var translatedMouseTile = translateXY(mouseTileX, mouseTileY);
+                translatedMouseTile.x += absCameraX() + (window.innerWidth / 2);
+                translatedMouseTile.y += absCameraY() + (window.innerHeight / 2);
+                drawTileAt(groundLayerContext, translatedMouseTile, "pink");
             }
 
-            uiLayerContext.clearRect(0, 0, 200, 200);
-            uiLayerContext.fillStyle = "white";
-            uiLayerContext.fillText("rotation: "+ rotation, 20, 100);
-            uiLayerContext.fillText("cameraX: "+ cameraX, 20, 115);
-            uiLayerContext.fillText("cameraY: "+ cameraY, 20, 130);
-
             return true;
+        }
+
+        function drawTileAt(context, absPosition, color, tx, ty, noLabels) {
+            noLabels = noLabels || !posLabelsEnabled;
+            var x = absPosition.x;
+            var y = absPosition.y;
+
+            if (tx === 0 && ty === 0) {
+                color = "gold";
+            }
+
+            if (color) {
+                context.beginPath();
+                context.moveTo(x - (tileWidth / 2) + 4, y);
+                context.lineTo(x, y - (tileHeight / 2) + 2);
+                context.lineTo(x + (tileWidth / 2) - 4, y);
+                context.lineTo(x, y + (tileHeight / 2) - 2);
+                context.lineTo(x - (tileWidth / 2) + 4, y);
+                context.lineWidth = 1;
+                context.strokeStyle = color;
+                context.stroke();
+            }
+
+            if (posLabelsEnabled) {
+                var tilePos = tx === undefined && ty === undefined
+                    ? translateTile(x - absCameraX() - (window.innerWidth / 2), y - absCameraY() - (window.innerHeight / 2))
+                    : { x: tx, y: ty };
+                var debugText = tilePos.x + "," + tilePos.y;
+                var color = "white";
+                if (tx === 0 && ty === 0) {
+                    color = "gold";
+                }
+                context.fillStyle = color;
+                context.textBaseline = "middle";
+                var size = context.measureText(debugText);
+                context.fillText(debugText, x - (size.width / 2), y);
+            }
         }
     </script>
 </head>
