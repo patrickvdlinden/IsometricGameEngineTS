@@ -58,7 +58,7 @@
                 : -retY;
         }
 
-        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, yOffsetDir, isAnimated) {
+        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, isAnimated, selectable) {
             this.source = src;
             this.tileWidth = tw;
             this.tileHeight = th;
@@ -66,9 +66,9 @@
             this.sourceY = srcY;
             this.sourceWidth = srcWidth;
             this.sourceHeight = srcHeight;
-			this.yOffsetDirection = yOffsetDir || 0;
             this.isAnimated = isAnimated || false;
             this.current = this;
+            this.selectable = selectable || false;
         };
 
         var tiles = new Image();
@@ -77,16 +77,19 @@
         var blocks = new Image();
             blocks.src = "blocks.png";
 
+        var blocksHovered = new Image();
+            blocksHovered.src = "blocks_hovered.png";
+
         var tileDefinitions = {
             default: new TileDefinition(tiles, 0, 0, 504, 263, 504, 253), 
-            ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 253),
-            water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, 0, true),
-            lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253),
+            ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 253, false, true),
+            water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, true),
+            lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253, true),
             block: new TileDefinition(blocks, 0, 0, 504, 506, 504, 253),
-            rampNorth: [new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253)],
-            rampEast: [new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253)],
-            rampSouth: [new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253)],
-            rampWest: [new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253)],
+            rampNorth: [new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true)],
+            rampEast: [new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true)],
+            rampSouth: [new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true)],
+            rampWest: [new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true)],
             rampCornerNorthEastInset: [new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253)],
             rampCornerEastSouthInset: [new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253)],
             rampCornerSouthWestInset: [new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253)],
@@ -101,11 +104,11 @@
         var groundLayer = [
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
-            [null, null, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
-            [null, null, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
-            [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
         ];
@@ -461,6 +464,18 @@
                 tile.sourceHeight * multiplierY);
             drawTileAt(uiLayerContext, absPosition, undefined, x, y);
 
+            var blockHovered = false;
+            if (mouseTileX === x && mouseTileY === y) {
+                blockHovered = true;
+
+                if (tile.selectable) {
+                    var translatedMouseTile = translateXY(mouseTileX, mouseTileY);
+                    translatedMouseTile.x += absCameraX() + (window.innerWidth / 2);
+                    translatedMouseTile.y += absCameraY() + (window.innerHeight / 2);
+                    drawTileAt(groundLayerContext, translatedMouseTile, "pink");
+                }
+            }
+
             if (objectLayer[y] && objectLayer[y][x]) {
                 var object = objectLayer[y][x];
                 if (object instanceof Array) {
@@ -470,7 +485,7 @@
                 var multiplierX = tileWidth / object.tileWidth;
                 var multiplierY = tileHeight / object.tileHeight;
                 objectLayerContext.drawImage(
-                    blocks,
+                    blockHovered && object.selectable ? blocksHovered : blocks,
                     object.sourceX,
                     object.sourceY,
                     object.sourceWidth,
@@ -479,13 +494,6 @@
                     absPosition.y - (tileHeight / 2) - ((object.sourceHeight * multiplierY) - tileHeight),
                     object.sourceWidth * multiplierX,
                     object.sourceHeight * multiplierY);
-            }
-
-            if (mouseTileX === x && mouseTileY === y) {
-                var translatedMouseTile = translateXY(mouseTileX, mouseTileY);
-                translatedMouseTile.x += absCameraX() + (window.innerWidth / 2);
-                translatedMouseTile.y += absCameraY() + (window.innerHeight / 2);
-                drawTileAt(groundLayerContext, translatedMouseTile, "pink");
             }
 
             return true;
@@ -502,11 +510,11 @@
 
             if (color) {
                 context.beginPath();
-                context.moveTo(x - (tileWidth / 2) + 4, y);
-                context.lineTo(x, y - (tileHeight / 2) + 2);
-                context.lineTo(x + (tileWidth / 2) - 4, y);
-                context.lineTo(x, y + (tileHeight / 2) - 2);
-                context.lineTo(x - (tileWidth / 2) + 4, y);
+                context.moveTo(x - (tileWidth / 2) + (6 * zoomFactor), y);
+                context.lineTo(x, y - (tileHeight / 2) + (3 * zoomFactor));
+                context.lineTo(x + (tileWidth / 2) - (6 * zoomFactor), y);
+                context.lineTo(x, y + (tileHeight / 2) - (3 * zoomFactor));
+                context.lineTo(x - (tileWidth / 2) + (6 * zoomFactor), y);
                 context.lineWidth = 1;
                 context.strokeStyle = color;
                 context.stroke();
