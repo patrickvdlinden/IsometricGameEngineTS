@@ -26,6 +26,7 @@
             zoomFactor = 0.5, // TODO: Set zoom factor to 1.
             tileWidth = baseTileWidth * zoomFactor,
             tileHeight = baseTileHeight * zoomFactor,
+            rotation = 0,
             cameraX = 0,
             cameraY = 0,
             moveCameraStartX = -1,
@@ -38,11 +39,17 @@
             uiLayerCanvas;
 
         function absCameraX() {
-            return cameraX * zoomFactor;
+            var retX = cameraX * zoomFactor;
+            return rotation == 0 || rotation == 3
+                ? retX
+                : -retX;
         }
 
         function absCameraY() {
-            return cameraY * zoomFactor;
+            var retY = cameraY * zoomFactor;
+            return rotation == 0 || rotation == 1
+                ? retY
+                : -retY;
         }
 
         function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, yOffsetDir, isAnimated) {
@@ -70,18 +77,18 @@
             water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, 0, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253),
             block: new TileDefinition(blocks, 0, 0, 504, 506, 504, 253),
-            rampNorth: new TileDefinition(blocks, 504, 0, 504, 506, 504, 253),
-            rampEast: new TileDefinition(blocks, 504, 506, 504, 506, 504, 253),
-            rampSouth: new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253),
-            rampWest: new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253),
-            rampCornerNorthEastInset: new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253),
-            rampCornerEastSouthInset: new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253),
-            rampCornerSouthWestInset: new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253),
-            rampCornerWestNorthInset: new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253),
-            rampCornerEastNorthOutset: new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253),
-            rampCornerSouthEastOutset: new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253),
-            rampCornerWestSouthOutset: new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253),
-            rampCornerNorthWestOutset: new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253),
+            rampNorth: [new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253)],
+            rampEast: [new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253)],
+            rampSouth: [new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253)],
+            rampWest: [new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253)],
+            rampCornerNorthEastInset: [new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253)],
+            rampCornerEastSouthInset: [new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253)],
+            rampCornerSouthWestInset: [new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253)],
+            rampCornerWestNorthInset: [new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253)],
+            rampCornerEastNorthOutset: [new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253)],
+            rampCornerSouthEastOutset: [new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253)],
+            rampCornerWestSouthOutset: [new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253)],
+            rampCornerNorthWestOutset: [new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253)],
             test: new TileDefinition(blocks, 0, 1518, 504, 506, 504, 253),
         };
 
@@ -109,6 +116,9 @@
             [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
         ];
 
+        var mapWidth = groundLayer[0].length;
+        var mapHeight = groundLayer.length;
+
         window.addEventListener("load", function() {
             groundLayerCanvas = document.getElementById("groundLayerCanvas");
             groundLayerCanvas.width = window.innerWidth;
@@ -121,10 +131,6 @@
             uiLayerCanvas = document.getElementById("uiLayerCanvas");
             uiLayerCanvas.width = window.innerWidth;
             uiLayerCanvas.height = window.innerHeight;
-
-            var cameraPos = translateXY(groundLayer.length / 2, groundLayer[0].length / 3);
-            cameraX += cameraPos.x;
-            cameraY -= cameraPos.y;
 
             window.addEventListener("resize", function() {
                 groundLayerCanvas.width = window.innerWidth;
@@ -144,6 +150,27 @@
 
             document.getElementById("togglePosLabelsEnabled").addEventListener("click", function() {
                 posLabelsEnabled = !posLabelsEnabled;
+            });
+
+            window.addEventListener("keydown", function(e) {
+                if (e.keyCode === 82) {
+                    var currentCameraPosition = translateTile(cameraX, cameraY);
+                    var currentRotation = rotation;
+                    rotation++;
+                    
+                    if (rotation === 4) {
+                        rotation = 0;
+                    }
+
+                    // TODO: Calculate new camera position correctly.
+                    if ((currentRotation === 0 && rotation === 1) || (currentRotation === 2 && rotation === 3)) {
+                        cameraX *= 2;
+                        cameraY /= 2;
+                    } else if ((currentRotation === 1 && rotation === 2) || (currentRotation === 3 && rotation === 0)) {
+                        cameraX /= 2;
+                        cameraY *= 2;
+                    }
+                }
             });
 
             window.addEventListener("wheel", function(e) {
@@ -169,8 +196,14 @@
             window.addEventListener("mousedown", function(e) {
                 if (e.which === 3) {
                     moveCamera = true;
-                    moveCameraStartX = e.clientX - cameraX;
-                    moveCameraStartY = e.clientY - cameraY;
+
+                    moveCameraStartX = rotation === 1 || rotation === 2
+                        ? e.clientX + cameraX
+                        : e.clientX - cameraX;
+
+                    moveCameraStartY = rotation === 2 || rotation === 3
+                        ? e.clientY + cameraY
+                        : e.clientY - cameraY;
 
                     e.preventDefault();
                     return false;
@@ -183,8 +216,13 @@
             var edgeDirectionY = 0;
             window.addEventListener("mousemove", function(e) {
                 if (moveCamera) {
-                    cameraX = e.clientX - moveCameraStartX;
-                    cameraY = e.clientY - moveCameraStartY;
+                    cameraX = rotation === 1 || rotation === 2
+                        ? -(e.clientX - moveCameraStartX)
+                        : e.clientX - moveCameraStartX;
+
+                    cameraY = rotation === 2 || rotation === 3
+                        ? -(e.clientY - moveCameraStartY)
+                        : e.clientY - moveCameraStartY;
                 } else {
                     var leftEdge = e.clientX < 10;
                     var rightEdge = e.clientX > groundLayerCanvas.width - 10;
@@ -250,21 +288,66 @@
         });
 
         function translateXY(x, y) {
-            return {
-                x: -(((tileWidth - zoomFactor) / 2) * y) + (((tileWidth - (zoomFactor * 2)) / 2) * x),
-                y: (((tileHeight - zoomFactor) / 2) * y) + (((tileHeight - (zoomFactor * 2)) / 2) * x)
-            };
-        }
-
-        function translateOffsetXY(x, y) {
             var offsetX = absCameraX() + (window.innerWidth / 2),
                 offsetY = absCameraY() + (window.innerHeight / 2),
-                translated = translateXY(x, y);
+                absX = x,
+                absY = y,
+                translated = { x: 0, y: 0 },
+                translatedXX = ((tileWidth - (zoomFactor * 2)) / 2) * x,
+                translatedXY = ((tileWidth - zoomFactor) / 2) * y,
+                translatedYX = ((tileHeight - zoomFactor) / 2) * x,
+                translatedYY = ((tileHeight - (zoomFactor * 2)) / 2) * y;
 
-            return { 
+            switch (rotation) {
+                case 0:
+                    translated = {
+                        x: translatedXX - translatedXY,
+                        y: translatedYY + translatedYX
+                    };
+                    break;
+
+                case 1:
+                    translated = {
+                        x: -(translatedXY + translatedXX),
+                        y: translatedYX - translatedYY
+                    };
+                    break;
+
+                case 2:
+                    translated = {
+                        x: -(translatedXX - translatedXY),
+                        y: -(translatedYX + translatedYY)
+                    };
+                    break;
+
+                case 3:
+                    translated = {
+                        x: translatedXY + translatedXX,
+                        y: translatedYY - translatedYX
+                    };
+                    break;
+            }
+
+            return {
                 x: offsetX + translated.x,
                 y: offsetY + translated.y
             };
+        }
+
+        function translateTile(absX, absY) {
+            translatedXX = absX / ((tileWidth - (zoomFactor * 2)) / 2);
+            translatedXY = absY / ((tileWidth - zoomFactor) / 2);
+            translatedYX = absX / ((tileHeight - zoomFactor) / 2);
+            translatedYY = absY / ((tileHeight - (zoomFactor * 2)) / 2);
+
+            console.log("x:", translatedXX + translatedXY);
+            console.log("y:", translatedYY - translatedYX);
+
+            // TODO: Calculate tile position.
+            return {
+                x: 0,
+                y: 0
+            }
         }
 
         function draw() {
@@ -279,100 +362,149 @@
 
             var uiLayerContext = uiLayerCanvas.getContext("2d");
             uiLayerContext.clearRect(0, 0, uiLayerCanvas.width, uiLayerCanvas.height);
+            uiLayerContext.font = "12px Lucida Console";
 
-            var width = groundLayer[0].length;
-            var height = groundLayer.length;
-
-            for (var y = 0; y < height; y++) {
-                for (var x = 0; x < width; x++) {
-                    var absPosition = translateOffsetXY(x, y);
-                    if (absPosition.x < -tileWidth
-                        || absPosition.y < -tileHeight
-                        || absPosition.x > groundLayerCanvas.width + tileWidth
-                        || absPosition.y > groundLayerCanvas.height + (tileHeight * 2)) {
-                        continue;
-                    }
-
-                    var tile = tileDefinitions.default;
-                    if (groundLayer[y] && groundLayer[y][x]) {
-                        tile = groundLayer[y][x];
-                    }
-                    var multiplierX = tileWidth / tile.tileWidth;
-                    var multiplierY = tileHeight / tile.tileHeight;
-                    if (tile.isAnimated) {
-                        tile = tile.current;
-                    }
-                    
-                    var yOffset = 0;
-                    if (tile.yOffsetDirection > 0) {
-                        yOffset = ((tile.sourceHeight * multiplierY) - tileHeight);
-                    }
-                    
-                    groundLayerContext.drawImage(
-                        tiles,
-                        tile.sourceX,
-                        tile.sourceY,
-                        tile.sourceWidth,
-                        tile.sourceHeight,
-                        absPosition.x - (tileWidth / 2),
-                        absPosition.y - (tileHeight / 2) - yOffset,
-                        tile.sourceWidth * multiplierX,
-                        tile.sourceHeight * multiplierY);
-
-                    if (objectLayer[y] && objectLayer[y][x]) {
-                        var object = objectLayer[y][x];
-                        var multiplierX = tileWidth / object.tileWidth;
-                        var multiplierY = tileHeight / object.tileHeight;
-                        objectLayerContext.drawImage(
-                            blocks,
-                            object.sourceX,
-                            object.sourceY,
-                            object.sourceWidth,
-                            object.sourceHeight,
-                            absPosition.x - (tileWidth / 2),
-                            absPosition.y - (tileHeight / 2) - ((object.sourceHeight * multiplierY) - tileHeight),
-                            object.sourceWidth * multiplierX,
-                            object.sourceHeight * multiplierY);
-                    }
-
-                    if (posLabelsEnabled) {
-                        var debugText = x + "," + y +" ("+ Math.round(absPosition.x) +","+ Math.round(absPosition.y) +")";
-                        var color = "white";
-                        if (y === 0) {
-                            color = "red";
-                        } else if (x === 0) {
-                            color = "green";
+            switch (rotation) {
+                case 0:
+                    for (var y = 0; y < mapHeight; y++) {
+                        for (var x = 0; x < mapWidth; x++) {
+                            if (!render(groundLayerContext, objectLayerContext, uiLayerContext, x, y)) {
+                                continue;
+                            }
                         }
-                        uiLayerContext.fillStyle = color;
-                        uiLayerContext.textBaseline = "middle";
-                        var size = uiLayerContext.measureText(debugText);
-                        uiLayerContext.fillText(debugText, absPosition.x - (size.width / 2), absPosition.y);
                     }
-                }
+                    break;
 
-                uiLayerContext.beginPath();
-                uiLayerContext.strokeStyle = "red";
-                uiLayerContext.lineWidth = 10;
+                case 1:
+                    for (var y = mapHeight; y >= 0; y--) {
+                        for (var x = 0; x < mapWidth; x++) {
+                            if (!render(groundLayerContext, objectLayerContext, uiLayerContext, x, y)) {
+                                continue;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 2:
+                    for (var y = mapHeight; y >= 0; y--) {
+                        for (var x = mapWidth; x >= 0; x--) {
+                            if (!render(groundLayerContext, objectLayerContext, uiLayerContext, x, y)) {
+                                continue;
+                            }
+                        }
+                    }
+                    break;
+                case 3:
+                    for (var y = 0; y < mapHeight; y++) {
+                        for (var x = mapWidth; x >= 0; x--) {
+                            if (!render(groundLayerContext, objectLayerContext, uiLayerContext, x, y)) {
+                                continue;
+                            }
+                        }
+                    }
+                    break;
+            }
 
-                if (edgeScrollingEnabled) {
-                    uiLayerContext.rect(
-                        uiLayerContext.lineWidth / 2,
-                        uiLayerContext.lineWidth / 2,
-                        groundLayerCanvas.width - (uiLayerContext.lineWidth),
-                        groundLayerCanvas.height - (uiLayerContext.lineWidth));
-                    uiLayerContext.stroke();
-                }
+            uiLayerContext.beginPath();
+            uiLayerContext.strokeStyle = "red";
+            uiLayerContext.lineWidth = 10;
 
-                uiLayerContext.beginPath();
-                uiLayerContext.lineWidth = 1;
-                uiLayerContext.moveTo(window.innerWidth / 2, 0);
-                uiLayerContext.lineTo(window.innerWidth / 2, window.innerHeight);
-                uiLayerContext.stroke();
-
-                uiLayerContext.moveTo(0, window.innerHeight / 2);
-                uiLayerContext.lineTo(window.innerWidth , window.innerHeight / 2);
+            if (edgeScrollingEnabled) {
+                uiLayerContext.rect(
+                    uiLayerContext.lineWidth / 2,
+                    uiLayerContext.lineWidth / 2,
+                    groundLayerCanvas.width - (uiLayerContext.lineWidth),
+                    groundLayerCanvas.height - (uiLayerContext.lineWidth));
                 uiLayerContext.stroke();
             }
+
+            uiLayerContext.beginPath();
+            uiLayerContext.lineWidth = 1;
+            uiLayerContext.moveTo(window.innerWidth / 2, 0);
+            uiLayerContext.lineTo(window.innerWidth / 2, window.innerHeight);
+            uiLayerContext.stroke();
+
+            uiLayerContext.moveTo(0, window.innerHeight / 2);
+            uiLayerContext.lineTo(window.innerWidth, window.innerHeight / 2);
+            uiLayerContext.stroke();
+        }
+
+        function render(groundLayerContext, objectLayerContext, uiLayerContext, x, y) {
+            var absPosition = translateXY(x, y);
+            if (absPosition.x < -tileWidth
+                || absPosition.y < -tileHeight
+                || absPosition.x > groundLayerCanvas.width + tileWidth
+                || absPosition.y > groundLayerCanvas.height + (tileHeight * 2)) {
+                return false;
+            }
+
+            var tile = tileDefinitions.default;
+            if (groundLayer[y] && groundLayer[y][x]) {
+                tile = groundLayer[y][x];
+            }
+            var multiplierX = tileWidth / tile.tileWidth;
+            var multiplierY = tileHeight / tile.tileHeight;
+            if (tile.isAnimated) {
+                tile = tile.current;
+            }
+
+            var yOffset = 0;
+            if (tile.yOffsetDirection > 0) {
+                yOffset = ((tile.sourceHeight * multiplierY) - tileHeight);
+            }
+
+            groundLayerContext.drawImage(
+                tiles,
+                tile.sourceX,
+                tile.sourceY,
+                tile.sourceWidth,
+                tile.sourceHeight,
+                absPosition.x - (tileWidth / 2),
+                absPosition.y - (tileHeight / 2) - yOffset,
+                tile.sourceWidth * multiplierX,
+                tile.sourceHeight * multiplierY);
+
+            if (objectLayer[y] && objectLayer[y][x]) {
+                var object = objectLayer[y][x];
+                if (object instanceof Array) {
+                    object = object[rotation];
+                }
+
+                var multiplierX = tileWidth / object.tileWidth;
+                var multiplierY = tileHeight / object.tileHeight;
+                objectLayerContext.drawImage(
+                    blocks,
+                    object.sourceX,
+                    object.sourceY,
+                    object.sourceWidth,
+                    object.sourceHeight,
+                    absPosition.x - (tileWidth / 2),
+                    absPosition.y - (tileHeight / 2) - ((object.sourceHeight * multiplierY) - tileHeight),
+                    object.sourceWidth * multiplierX,
+                    object.sourceHeight * multiplierY);
+            }
+
+            if (posLabelsEnabled) {
+                var debugText = x + "," + y + " (" + Math.round(absPosition.x) + "," + Math.round(absPosition.y) + ")";
+                var color = "white";
+                if (y === 0) {
+                    color = "red";
+                } else if (x === 0) {
+                    color = "green";
+                }
+                uiLayerContext.fillStyle = color;
+                uiLayerContext.textBaseline = "middle";
+                var size = uiLayerContext.measureText(debugText);
+                uiLayerContext.fillText(debugText, absPosition.x - (size.width / 2), absPosition.y);
+            }
+
+            uiLayerContext.clearRect(0, 0, 200, 200);
+            uiLayerContext.fillStyle = "white";
+            uiLayerContext.fillText("rotation: "+ rotation, 20, 100);
+            uiLayerContext.fillText("cameraX: "+ cameraX, 20, 115);
+            uiLayerContext.fillText("cameraY: "+ cameraY, 20, 130);
+
+            return true;
         }
     </script>
 </head>
