@@ -39,7 +39,7 @@
             mouseTileX = 0,
             mouseTileY = 0,
             edgeScrollingEnabled = false,
-            posLabelsEnabled = true,
+            posLabelsEnabled = false,
             groundLayerCanvas,
             objectLayerCanvas,
             uiLayerCanvas;
@@ -83,6 +83,7 @@
         var tileDefinitions = {
             default: new TileDefinition(tiles, 0, 0, 504, 263, 504, 253), 
             ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 253, false, true),
+            groundRubbleFull: new TileDefinition(tiles, 504, 263, 504, 263, 504, 253, false, true),
             water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253, true),
             block: new TileDefinition(blocks, 0, 0, 504, 506, 504, 253),
@@ -104,8 +105,8 @@
         var groundLayer = [
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-            [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
-            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, null, null, null, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
             [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
             [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
             [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
