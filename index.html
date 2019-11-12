@@ -74,39 +74,41 @@
         var tiles = new Image();
             tiles.src = "tiles.png";
 
-        var blocks = new Image();
-            blocks.src = "blocks.png";
+        var walls = new Image();
+            walls.src = "walls.png";
 
-        var blocksHovered = new Image();
-            blocksHovered.src = "blocks_hovered.png";
+        var wallsHovered = new Image();
+            wallsHovered.src = "walls_hovered.png";
 
         var tileDefinitions = {
-            default: new TileDefinition(tiles, 0, 0, 504, 263, 504, 253), 
-            ground: new TileDefinition(tiles, 504, 0, 504, 263, 504, 253, false, true),
-            groundRubbleFull: new TileDefinition(tiles, 504, 263, 504, 263, 504, 253, false, true),
-            water: new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, true),
+            ground: new TileDefinition(tiles, 0, 0, 504, 263, 504, 253, false, true), 
+            groundRubble1: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
+            groundRubble2: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
+            groundRubble3: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
+            groundRubble4: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
+            water: new TileDefinition(tiles, 0, 1315, 504, 263, 504, 253, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253, true),
-            block: new TileDefinition(blocks, 0, 0, 504, 506, 504, 253),
-            rampNorth: [new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true)],
-            rampEast: [new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true)],
-            rampSouth: [new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true)],
-            rampWest: [new TileDefinition(blocks, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(blocks, 504, 1012, 504, 506, 504, 253, false, true)],
-            rampCornerNorthEastInset: [new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253)],
-            rampCornerEastSouthInset: [new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253)],
-            rampCornerSouthWestInset: [new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253)],
-            rampCornerWestNorthInset: [new TileDefinition(blocks, 1008, 1518, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1008, 1012, 504, 506, 504, 253)],
-            rampCornerEastNorthOutset: [new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253)],
-            rampCornerSouthEastOutset: [new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253)],
-            rampCornerWestSouthOutset: [new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253)],
-            rampCornerNorthWestOutset: [new TileDefinition(blocks, 1512, 1516, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 0, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 506, 504, 506, 504, 253), new TileDefinition(blocks, 1512, 1012, 504, 506, 504, 253)],
-            test: new TileDefinition(blocks, 0, 1518, 504, 506, 504, 253),
+            roof: new TileDefinition(walls, 0, 0, 504, 506, 504, 253),
+            wallNorth: [new TileDefinition(walls, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1518, 504, 506, 504, 253, false, true)],
+            wallEast: [new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 0, 504, 506, 504, 253, false, true)],
+            wallSouth: [new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true)],
+            wallWest: [new TileDefinition(walls, 504, 1518, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 0, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true)],
+            wallCornerInsetNorthEast: [new TileDefinition(walls, 1008, 0, 504, 506, 504, 253), new TileDefinition(walls, 1008, 506, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1518, 504, 506, 504, 253)],
+            wallCornerInsetEastSouth: [new TileDefinition(walls, 1008, 506, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1518, 504, 506, 504, 253), new TileDefinition(walls, 1008, 0, 504, 506, 504, 253)],
+            wallCornerInsetSouthWest: [new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1518, 504, 506, 504, 253), new TileDefinition(walls, 1008, 0, 504, 506, 504, 253), new TileDefinition(walls, 1008, 506, 504, 506, 504, 253)],
+            wallCornerInsetWestNorth: [new TileDefinition(walls, 1008, 1518, 504, 506, 504, 253), new TileDefinition(walls, 1008, 0, 504, 506, 504, 253), new TileDefinition(walls, 1008, 506, 504, 506, 504, 253), new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253)],
+            wallCornerOutsetEastNorth: [new TileDefinition(walls, 1512, 0, 504, 506, 504, 253), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253)],
+            wallCornerOutsetSouthEast: [new TileDefinition(walls, 1512, 506, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253), new TileDefinition(walls, 1512, 0, 504, 506, 504, 253)],
+            wallCornerOutsetWestSouth: [new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253), new TileDefinition(walls, 1512, 0, 504, 506, 504, 253), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253)],
+            wallCornerOutsetNorthWest: [new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253), new TileDefinition(walls, 1512, 0, 504, 506, 504, 253), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253)],
+            test: new TileDefinition(walls, 0, 1518, 504, 506, 504, 253),
         };
 
         var groundLayer = [
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-            [null, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, null, null, null, null, null, null],
-            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.groundRubbleFull, tileDefinitions.groundRubbleFull, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
+            [null, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, null, null, null, null, null, null],
+            [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
             [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
             [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
             [null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null, null, null, null],
@@ -115,15 +117,15 @@
         ];
 
         var objectLayer = [
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
-            [tileDefinitions.block, tileDefinitions.rampCornerWestNorthInset, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerEastNorthOutset, tileDefinitions.rampNorth, tileDefinitions.rampNorth, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerEastNorthOutset, tileDefinitions.rampCornerNorthEastInset, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampEast, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerSouthEastOutset, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampWest, null, null, null, null, null, null, null, null, null, tileDefinitions.rampCornerSouthEastOutset, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block, tileDefinitions.block],
-            [tileDefinitions.block, tileDefinitions.rampCornerSouthWestInset, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampSouth, tileDefinitions.rampCornerEastSouthInset, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null],
-            [tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, tileDefinitions.block, null, null, null, null],
+            [tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, null, null, null, null],
+            [tileDefinitions.roof, tileDefinitions.wallCornerInsetWestNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallCornerInsetNorthEast, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, null],
+            [tileDefinitions.roof, tileDefinitions.wallWest, null, null, null, null, null, null, null, null, null, tileDefinitions.wallCornerOutsetEastNorth, tileDefinitions.wallNorth, tileDefinitions.wallNorth, tileDefinitions.wallCornerInsetNorthEast, tileDefinitions.roof, tileDefinitions.roof],
+            [tileDefinitions.roof, tileDefinitions.wallWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.wallCornerOutsetEastNorth, tileDefinitions.wallCornerInsetNorthEast, tileDefinitions.roof],
+            [tileDefinitions.roof, tileDefinitions.wallWest, null, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.wallEast, tileDefinitions.roof],
+            [tileDefinitions.roof, tileDefinitions.wallWest, null, null, null, null, null, null, null, null, null, null, null, null, tileDefinitions.wallCornerOutsetSouthEast, tileDefinitions.wallCornerInsetEastSouth, tileDefinitions.roof],
+            [tileDefinitions.roof, tileDefinitions.wallWest, null, null, null, null, null, null, null, null, null, tileDefinitions.wallCornerOutsetSouthEast, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallCornerInsetEastSouth, tileDefinitions.roof, tileDefinitions.roof],
+            [tileDefinitions.roof, tileDefinitions.wallCornerInsetSouthWest, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallCornerInsetEastSouth, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, null],
+            [tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, null, null, null, null],
         ];
 
         var mapWidth = groundLayer[0].length;
@@ -302,7 +304,7 @@
                     if (waterAnimationIndex >= 4) {
                         waterAnimationIndex = 0;
                     }
-                    tileDefinitions.water.current = new TileDefinition(tiles, 1008, waterAnimationIndex * 263, 504, 263, 504, 253);
+                    tileDefinitions.water.current = new TileDefinition(tiles, 0, 1315 + (waterAnimationIndex * 263), 504, 263, 504, 253);
                 }
 
                 requestAnimationFrame(draw);
@@ -443,33 +445,38 @@
                 return false;
             }
 
-            var tile = tileDefinitions.default;
+            var tile,
+                multiplierX,
+                multiplierY;
             if (groundLayer[y] && groundLayer[y][x]) {
                 tile = groundLayer[y][x];
-            }
-            var multiplierX = tileWidth / tile.tileWidth;
-            var multiplierY = tileHeight / tile.tileHeight;
-            if (tile.isAnimated) {
-                tile = tile.current;
+                multiplierX = tileWidth / tile.tileWidth;
+                multiplierY = tileHeight / tile.tileHeight;
+
+                if (tile.isAnimated) {
+                    tile = tile.current;
+                }
             }
 
-            groundLayerContext.drawImage(
-                tiles,
-                tile.sourceX,
-                tile.sourceY,
-                tile.sourceWidth,
-                tile.sourceHeight,
-                absPosition.x - (tileWidth / 2),
-                absPosition.y - (tileHeight / 2),
-                tile.sourceWidth * multiplierX,
-                tile.sourceHeight * multiplierY);
-            drawTileAt(uiLayerContext, absPosition, undefined, x, y);
+            if (tile) {
+                groundLayerContext.drawImage(
+                    tiles,
+                    tile.sourceX,
+                    tile.sourceY,
+                    tile.sourceWidth,
+                    tile.sourceHeight,
+                    absPosition.x - (tileWidth / 2),
+                    absPosition.y - (tileHeight / 2),
+                    tile.sourceWidth * multiplierX,
+                    tile.sourceHeight * multiplierY);
+                drawTileAt(uiLayerContext, absPosition, undefined, x, y);
+            }
 
-            var blockHovered = false;
+            var wallHovered = false;
             if (mouseTileX === x && mouseTileY === y) {
-                blockHovered = true;
+                wallHovered = true;
 
-                if (tile.selectable) {
+                if (tile && tile.selectable) {
                     var translatedMouseTile = translateXY(mouseTileX, mouseTileY);
                     translatedMouseTile.x += absCameraX() + (window.innerWidth / 2);
                     translatedMouseTile.y += absCameraY() + (window.innerHeight / 2);
@@ -486,7 +493,7 @@
                 var multiplierX = tileWidth / object.tileWidth;
                 var multiplierY = tileHeight / object.tileHeight;
                 objectLayerContext.drawImage(
-                    blockHovered && object.selectable ? blocksHovered : blocks,
+                    wallHovered && object.selectable ? wallsHovered : walls,
                     object.sourceX,
                     object.sourceY,
                     object.sourceWidth,
