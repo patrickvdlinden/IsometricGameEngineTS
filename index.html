@@ -38,11 +38,16 @@
             mouseY = 0,
             mouseTileX = 0,
             mouseTileY = 0,
+            mouseDown = false,
+            selectedTile = null,
             edgeScrollingEnabled = false,
             posLabelsEnabled = false,
             groundLayerCanvas,
             objectLayerCanvas,
-            uiLayerCanvas;
+            uiLayerCanvas,
+            character = new Character(1);
+
+        character.spawn(2, 2);
 
         function absCameraX() {
             var retX = cameraX * zoomFactor;
@@ -58,8 +63,14 @@
                 : -retY;
         }
 
-        function TileDefinition (src, srcX, srcY, srcWidth, srcHeight, tw, th, isAnimated, selectable) {
-            this.source = src;
+        function TileDefinition(src, srcX, srcY, srcWidth, srcHeight, tw, th, isAnimated, selectable, passable) {
+            if (src instanceof Array) {
+                this.source = src[0];
+                this.sourceHovered = src[1];
+            } else {
+                this.source = src;
+            }
+
             this.tileWidth = tw;
             this.tileHeight = th;
             this.sourceX = srcX;
@@ -69,50 +80,54 @@
             this.isAnimated = isAnimated || false;
             this.current = this;
             this.selectable = selectable || false;
+            this.passable = passable || false;
         };
 
         var tiles = new Image();
-            tiles.src = "tiles.png";
+        tiles.src = "tiles.png";
 
         var walls = new Image();
-            walls.src = "walls.png";
+        walls.src = "walls.png";
 
         var wallsHovered = new Image();
-            wallsHovered.src = "walls_hovered.png";
+        wallsHovered.src = "walls_hovered.png";
+
+        var characters = new Image();
+        characters.src = "characters.png";
 
         var tileDefinitions = {
-            ground: new TileDefinition(tiles, 0, 0, 504, 263, 504, 253, false, true), 
+            ground: [new TileDefinition(tiles, 0, 0, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 504, 0, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1008, 0, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253, false, true)],
 
-            groundRubble1: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
-            groundRubble2: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
-            groundRubble3: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
-            groundRubble4: new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true),
+            groundRubble1: [new TileDefinition(tiles, 0, 263, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 504, 263, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1008, 263, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1512, 263, 504, 263, 504, 253, false, true)],
+            groundRubble2: [new TileDefinition(tiles, 0, 526, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 504, 526, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1008, 526, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1512, 526, 504, 263, 504, 253, false, true)],
+            groundRubble3: [new TileDefinition(tiles, 0, 789, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 504, 789, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1008, 789, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1512, 789, 504, 263, 504, 253, false, true)],
+            groundRubble4: [new TileDefinition(tiles, 0, 1052, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 504, 1052, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1008, 1052, 504, 263, 504, 253, false, true), new TileDefinition(tiles, 1512, 1052, 504, 263, 504, 253, false, true)],
 
             water: new TileDefinition(tiles, 0, 1315, 504, 263, 504, 253, true),
             lava: new TileDefinition(tiles, 1512, 0, 504, 263, 504, 253, true),
 
-            roof: new TileDefinition(walls, 0, 0, 504, 506, 504, 253),
+            roof: new TileDefinition([walls, wallsHovered], 0, 0, 504, 506, 504, 253),
 
-            wallNorth: [new TileDefinition(walls, 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253, false, true)],
-            wallEast:  [new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 506, 504, 506, 504, 253, false, true)],
-            wallSouth: [new TileDefinition(walls, 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true)],
-            wallWest:  [new TileDefinition(walls, 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 506, 504, 506, 504, 253, false, true)],
+            wallNorth: [new TileDefinition([walls, wallsHovered], 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 506, 504, 506, 504, 253, false, true)],
+            wallEast:  [new TileDefinition([walls, wallsHovered], 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 506, 504, 506, 504, 253, false, true)],
+            wallSouth: [new TileDefinition([walls, wallsHovered], 1008, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 506, 504, 506, 504, 253, false, true)],
+            wallWest:  [new TileDefinition([walls, wallsHovered], 1512, 506, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 506, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 506, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 506, 504, 506, 504, 253, false, true)],
 
-            wallCornerInsetNorthEast: [new TileDefinition(walls, 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253, false, true)],
-            wallCornerInsetEastSouth: [new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1012, 504, 506, 504, 253, false, true)],
-            wallCornerInsetSouthWest: [new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true)],
-            wallCornerInsetWestNorth: [new TileDefinition(walls, 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1012, 504, 506, 504, 253, false, true)],
+            wallCornerInsetNorthEast: [new TileDefinition([walls, wallsHovered], 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1012, 504, 506, 504, 253, false, true)],
+            wallCornerInsetEastSouth: [new TileDefinition([walls, wallsHovered], 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1012, 504, 506, 504, 253, false, true)],
+            wallCornerInsetSouthWest: [new TileDefinition([walls, wallsHovered], 1008, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1012, 504, 506, 504, 253, false, true)],
+            wallCornerInsetWestNorth: [new TileDefinition([walls, wallsHovered], 1512, 1012, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1012, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1012, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1012, 504, 506, 504, 253, false, true)],
 
-            wallCornerOutsetEastNorth: [new TileDefinition(walls, 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253, false, true)],
-            wallCornerOutsetSouthEast: [new TileDefinition(walls, 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1516, 504, 506, 504, 253, false, true)],
-            wallCornerOutsetWestSouth: [new TileDefinition(walls, 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1516, 504, 506, 504, 253, false, true)],
-            wallCornerOutsetNorthWest: [new TileDefinition(walls, 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition(walls, 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition(walls, 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition(walls, 1008, 1516, 504, 506, 504, 253, false, true)],
+            wallCornerOutsetEastNorth: [new TileDefinition([walls, wallsHovered], 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1516, 504, 506, 504, 253, false, true)],
+            wallCornerOutsetSouthEast: [new TileDefinition([walls, wallsHovered], 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1516, 504, 506, 504, 253, false, true)],
+            wallCornerOutsetWestSouth: [new TileDefinition([walls, wallsHovered], 1008, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1516, 504, 506, 504, 253, false, true)],
+            wallCornerOutsetNorthWest: [new TileDefinition([walls, wallsHovered], 1512, 1516, 504, 506, 504, 253, false, true), new TileDefinition([walls, wallsHovered], 0, 1516, 504, 506, 504, 253, false, true),    new TileDefinition([walls, wallsHovered], 504, 1516, 504, 506, 504, 253, false, true),  new TileDefinition([walls, wallsHovered], 1008, 1516, 504, 506, 504, 253, false, true)],
         };
 
         var groundLayer = [
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-            [null, null, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, null, null, null, null, null, null],
+            [null, null, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble2, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, null, null, null, null, null, null],
             [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.groundRubble1, tileDefinitions.groundRubble1, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
             [null, null, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null],
             [null, tileDefinitions.ground, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.water, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, tileDefinitions.ground, null, null, null],
@@ -132,6 +147,90 @@
             [tileDefinitions.roof, tileDefinitions.wallCornerInsetSouthWest, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallSouth, tileDefinitions.wallCornerInsetEastSouth, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof],
             [tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof, tileDefinitions.roof],
         ];
+
+
+        function Character(id) {
+            var startPos,
+                absStartPos,
+                endPos,
+                absEndPos
+                isMoving = false,
+                baseSpeed = 2,
+                speed = 0,
+                distance = 0,
+                directionX = 0,
+                directionY = 0;
+
+            this.sourceX = 0;
+            this.sourceY = 0;
+            this.sourceWidth = 504;
+            this.sourceHeight = 506;
+            this.tileWidth = 504;
+            this.tileHeight = 253;
+
+            this.position = null;
+            this.absPosition = null;
+
+            this.spawn = function(x, y) {
+                this.position = { x: x, y: y };
+                this.absPosition = translateXY(this.position.x, this.position.y);
+            };
+
+            this.update = function() {
+                if (!this.position) {
+                    return;
+                }
+
+                if (selectedTile && (!endPos || (endPos.x != selectedTile.x && endPos.y != selectedTile.y))) {
+                    absStartPos = { x: this.absPosition.x, y: this.absPosition.y };
+                    absEndPos = translateXY(selectedTile.x, selectedTile.y);
+                    endPos = { x: selectedTile.x, y: selectedTile.y };
+                    speed = baseSpeed;
+
+                    var distanceX = absEndPos.x - absStartPos.x;
+                    var distanceY = absEndPos.y - absStartPos.y;
+                    distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+                    directionX = (absEndPos.x - absStartPos.x) / distance * zoomFactor;
+                    directionY = (absEndPos.y - absStartPos.y) / distance * zoomFactor;
+
+                    if (this.position.x != endPos.x && this.position.y != endPos.y) {
+                        isMoving = true;
+                    }
+                }
+
+                if (isMoving) {
+                    if (Math.sqrt(Math.pow(this.absPosition.x - absStartPos.x, 2) + Math.pow(this.absPosition.y - absStartPos.y, 2)) >= distance) {
+                        this.position = translateTile(absEndPos.x, absEndPos.y);
+                        this.absPosition = { x: absEndPos.x, y: absEndPos.y };
+                        isMoving = false;
+                        startPos = undefined;
+                    } else {
+                        this.absPosition.x += directionX * speed;
+                        this.absPosition.y += directionY * speed;
+                        this.position = translateTile(this.absPosition.x, this.absPosition.y);
+                    }
+                } else {
+                    // TODO: Fix position when zooming in or out while moving.
+                    this.absPosition = translateXY(this.position.x, this.position.y);
+                }
+            };
+
+            this.draw = function(context) {
+                var multiplierX = tileWidth / this.tileWidth;
+                var multiplierY = tileHeight / this.tileHeight;
+
+                context.drawImage(
+                    characters,
+                    this.sourceX,
+                    this.sourceY,
+                    this.sourceWidth,
+                    this.sourceHeight,
+                    (this.absPosition.x + absCameraX() + (window.innerWidth / 2)) - (tileWidth / 2),
+                    (this.absPosition.y + absCameraY() + (window.innerHeight / 2)) - (tileHeight / 2) - ((this.sourceHeight * multiplierY) - tileHeight),
+                    this.sourceWidth * multiplierX,
+                    this.sourceHeight * multiplierY);
+            };
+        }
 
         var mapWidth = groundLayer[0].length;
         var mapHeight = groundLayer.length;
@@ -224,6 +323,8 @@
 
                     e.preventDefault();
                     return false;
+                } else if (e.which === 1) {
+                    mouseDown = true;
                 }
             });
 
@@ -291,6 +392,8 @@
                     moveCameraStartY = -1;
                     e.preventDefault();
                     return false;
+                } else if (e.which === 1) {
+                    mouseDown = false;
                 }
             });
 
@@ -374,6 +477,10 @@
             uiLayerContext.clearRect(0, 0, uiLayerCanvas.width, uiLayerCanvas.height);
             uiLayerContext.font = "12px Lucida Console";
 
+            if (character) {
+                character.update();
+            }
+
             switch (rotation) {
                 case 0:
                     for (var y = 0; y < mapHeight; y++) {
@@ -425,6 +532,8 @@
             uiLayerContext.fillText("mouseY: " + mouseY, 20, 190);
             uiLayerContext.fillText("mouseTileX: " + mouseTileX, 20, 205);
             uiLayerContext.fillText("mouseTileY: " + mouseTileY, 20, 220);
+            uiLayerContext.fillText("mouseDown: " + mouseDown, 20, 235);
+            uiLayerContext.fillText("selectedTile: " + (selectedTile ? (selectedTile.x + ", "+ selectedTile.y) : "-"), 20, 250);
 
             if (edgeScrollingEnabled) {
                 uiLayerContext.beginPath();
@@ -435,6 +544,7 @@
                     uiLayerContext.lineWidth / 2,
                     groundLayerCanvas.width - (uiLayerContext.lineWidth),
                     groundLayerCanvas.height - (uiLayerContext.lineWidth));
+                uiLayerContext.closePath();
                 uiLayerContext.stroke();
             }
         }
@@ -451,10 +561,14 @@
             }
 
             var tile,
-                multiplierX,
-                multiplierY;
+                multiplierX = 1,
+                multiplierY = 1;
             if (groundLayer[y] && groundLayer[y][x]) {
                 tile = groundLayer[y][x];
+                if (tile instanceof Array) {
+                    tile = tile[rotation];
+                }
+
                 multiplierX = tileWidth / tile.tileWidth;
                 multiplierY = tileHeight / tile.tileHeight;
 
@@ -465,7 +579,7 @@
 
             if (tile) {
                 groundLayerContext.drawImage(
-                    tiles,
+                    tile.source,
                     tile.sourceX,
                     tile.sourceY,
                     tile.sourceWidth,
@@ -474,31 +588,42 @@
                     absPosition.y - (tileHeight / 2),
                     tile.sourceWidth * multiplierX,
                     tile.sourceHeight * multiplierY);
-                drawTileAt(uiLayerContext, absPosition, undefined, x, y);
+                drawTileAt(uiLayerContext, absPosition, undefined, undefined, x, y);
+            }
+            
+            var object;
+            if (objectLayer[y] && objectLayer[y][x]) {
+                object = objectLayer[y][x];
+                if (object instanceof Array) {
+                    object = object[rotation];
+                }
             }
 
             var wallHovered = false;
             if (mouseTileX === x && mouseTileY === y) {
                 wallHovered = true;
 
-                if (tile && tile.selectable) {
+                if (tile && tile.selectable && (!object || object.passable)) {
+                    if (mouseDown) {
+                        selectedTile = { x: x, y: y };
+                    }
+
                     var translatedMouseTile = translateXY(mouseTileX, mouseTileY);
                     translatedMouseTile.x += absCameraX() + (window.innerWidth / 2);
                     translatedMouseTile.y += absCameraY() + (window.innerHeight / 2);
-                    drawTileAt(groundLayerContext, translatedMouseTile, "pink");
+                    drawTileAt(groundLayerContext, translatedMouseTile, "pink", selectedTile == { x: x, y: y });
                 }
             }
 
-            if (objectLayer[y] && objectLayer[y][x]) {
-                var object = objectLayer[y][x];
-                if (object instanceof Array) {
-                    object = object[rotation];
-                }
+            if (selectedTile && selectedTile.x === x && selectedTile.y === y) {
+                drawTileAt(groundLayerContext, absPosition, "rgba(38,127,0,0.25)", true);
+            }
 
-                var multiplierX = tileWidth / object.tileWidth;
-                var multiplierY = tileHeight / object.tileHeight;
+            if (object) {
+                multiplierX = tileWidth / object.tileWidth;
+                multiplierY = tileHeight / object.tileHeight;
                 objectLayerContext.drawImage(
-                    wallHovered && object.selectable ? wallsHovered : walls,
+                    wallHovered && object.selectable ? object.sourceHovered : object.source,
                     object.sourceX,
                     object.sourceY,
                     object.sourceWidth,
@@ -509,10 +634,14 @@
                     object.sourceHeight * multiplierY);
             }
 
+            if (character && character.position && character.position.x === x && character.position.y === y) {
+                character.draw(objectLayerContext);
+            }
+
             return true;
         }
 
-        function drawTileAt(context, absPosition, color, tx, ty, noLabels) {
+        function drawTileAt(context, absPosition, color, fill, tx, ty, noLabels) {
             noLabels = noLabels || !posLabelsEnabled;
             var x = absPosition.x;
             var y = absPosition.y;
@@ -528,9 +657,16 @@
                 context.lineTo(x + (tileWidth / 2) - (6 * zoomFactor), y);
                 context.lineTo(x, y + (tileHeight / 2) - (3 * zoomFactor));
                 context.lineTo(x - (tileWidth / 2) + (6 * zoomFactor), y);
-                context.lineWidth = 1;
-                context.strokeStyle = color;
-                context.stroke();
+                context.closePath();
+
+                if (fill) {
+                    context.fillStyle = color;
+                    context.fill();
+                } else {
+                    context.lineWidth = 1;
+                    context.strokeStyle = color;                
+                    context.stroke();
+                }
             }
 
             if (posLabelsEnabled) {
